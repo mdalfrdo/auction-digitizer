@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
+import { FileUpload } from "@/components/FileUpload";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -40,22 +43,28 @@ const sampleFiles = [
 ];
 
 const FileManager = () => {
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  
   const breadcrumbs = [
     { label: "Home" },
     { label: "File Manager" },
   ];
+
+  const handleUpload = (files: File[]) => {
+    console.log("Files uploaded:", files);
+    // Here you would handle the actual upload to your backend
+  };
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
       <div className="space-y-6">
         <h1 className="text-3xl font-bold">File Manager</h1>
 
+        {/* File Upload Section */}
+        <FileUpload onUpload={handleUpload} />
+
         {/* Action Buttons */}
         <div className="flex items-center gap-3">
-          <Button className="bg-success hover:bg-success/90">
-            <Upload className="h-4 w-4 mr-2" />
-            Upload File
-          </Button>
           <Button className="bg-info hover:bg-info/90">
             <Download className="h-4 w-4 mr-2" />
             Download Semua File

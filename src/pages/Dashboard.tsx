@@ -1,6 +1,9 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { StatsCard } from "@/components/StatsCard";
 import { QuickActionCard } from "@/components/QuickActionCard";
+import { DocumentChart } from "@/components/DocumentChart";
+import { CategoryChart } from "@/components/CategoryChart";
+import { StatusChart } from "@/components/StatusChart";
 import { FileText, HardDrive, FolderOpen, Plus, Database, Download, Wrench, Calendar } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -62,6 +65,12 @@ const Dashboard = () => {
           />
         </div>
 
+        {/* Analytics Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <DocumentChart />
+          <CategoryChart />
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Dokumen PR Table */}
           <Card className="lg:col-span-2 p-6">
@@ -106,12 +115,8 @@ const Dashboard = () => {
             </div>
           </Card>
 
-          {/* Graph Placeholder */}
-          <Card className="p-6">
-            <div className="h-full flex items-center justify-center bg-muted/30 rounded-lg border-2 border-dashed">
-              <p className="text-muted-foreground">[Insert Graph Here]</p>
-            </div>
-          </Card>
+          {/* Status Chart */}
+          <StatusChart />
         </div>
 
         {/* Quick Menu */}
