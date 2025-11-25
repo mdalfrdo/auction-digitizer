@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { VendorForm } from "@/components/VendorForm";
 import {
   Select,
   SelectContent,
@@ -17,10 +19,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Edit, Trash2 } from "lucide-react";
+import { Search, Edit, Trash2, Eye, Plus } from "lucide-react";
 
-const sampleData = [
+const sampleVendors = [
   {
+    no: 1,
     namaVendor: "PT Maju Jalan",
     namaPIC: "Hasan",
     penilaian: "Baik",
@@ -28,15 +31,43 @@ const sampleData = [
 ];
 
 const TabelVendor = () => {
+  const [showVendorForm, setShowVendorForm] = useState(false);
+  const [selectedVendor, setSelectedVendor] = useState(null);
+  const [vendorData, setVendorData] = useState(sampleVendors);
+
   const breadcrumbs = [
     { label: "Home" },
     { label: "Tabel Vendor" },
   ];
 
+  const handleAddVendor = () => {
+    setSelectedVendor(null);
+    setShowVendorForm(true);
+  };
+
+  const handleEditVendor = (vendor) => {
+    setSelectedVendor(vendor);
+    setShowVendorForm(true);
+  };
+
+  const handleSubmitVendor = (formData) => {
+    if (selectedVendor) {
+      setVendorData(vendorData.map(v => v.no === selectedVendor.no ? { ...v, ...formData } : v));
+    } else {
+      setVendorData([...vendorData, { no: vendorData.length + 1, ...formData }]);
+    }
+  };
+
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold italic">Tabel Vendor</h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-3xl font-bold italic">Tabel Vendor</h1>
+          <Button onClick={handleAddVendor} className="bg-success hover:bg-success/90">
+            <Plus className="h-4 w-4 mr-2" />
+            Add New Vendor
+          </Button>
+        </div>
 
         {/* Filters */}
         <Card className="p-6">
@@ -104,14 +135,22 @@ const TabelVendor = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sampleData.map((row, index) => (
+                {vendorData.map((vendor, index) => (
                   <TableRow key={index}>
-                    <TableCell>{row.namaVendor}</TableCell>
-                    <TableCell>{row.namaPIC}</TableCell>
-                    <TableCell>{row.penilaian}</TableCell>
+                    <TableCell>{vendor.namaVendor}</TableCell>
+                    <TableCell>{vendor.namaPIC}</TableCell>
+                    <TableCell>{vendor.penilaian}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Button size="icon" variant="ghost" className="h-8 w-8 bg-warning hover:bg-warning/90">
+                        <Button size="icon" variant="ghost" className="h-8 w-8 bg-info hover:bg-info/90">
+                          <Eye className="h-4 w-4 text-white" />
+                        </Button>
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          className="h-8 w-8 bg-warning hover:bg-warning/90"
+                          onClick={() => handleEditVendor(vendor)}
+                        >
                           <Edit className="h-4 w-4 text-white" />
                         </Button>
                         <Button size="icon" variant="ghost" className="h-8 w-8 bg-danger hover:bg-danger/90">
@@ -137,6 +176,13 @@ const TabelVendor = () => {
           </div>
         </Card>
       </div>
+
+      <VendorForm
+        open={showVendorForm}
+        onClose={() => setShowVendorForm(false)}
+        onSubmit={handleSubmitVendor}
+        initialData={selectedVendor}
+      />
     </DashboardLayout>
   );
 };

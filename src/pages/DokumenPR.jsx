@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PRForm } from "@/components/PRForm";
+import { PRDocumentUpload } from "@/components/PRDocumentUpload";
 import {
   Select,
   SelectContent,
@@ -18,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Edit, Trash2 } from "lucide-react";
+import { Search, Edit, Trash2, Plus, Upload } from "lucide-react";
 
 const sampleData = [
   {
@@ -41,17 +44,51 @@ const statusVariants = {
 };
 
 const DokumenPR = () => {
+  const [showPRForm, setShowPRForm] = useState(false);
+  const [showDocUpload, setShowDocUpload] = useState(false);
+  const [selectedPR, setSelectedPR] = useState(null);
+  const [prData, setPrData] = useState(sampleData);
+
   const breadcrumbs = [
     { label: "Home" },
     { label: "Dokumen PR" },
     { label: "Listing PR" },
   ];
 
+  const handleAddPR = () => {
+    setSelectedPR(null);
+    setShowPRForm(true);
+  };
+
+  const handleEditPR = (pr) => {
+    setSelectedPR(pr);
+    setShowPRForm(true);
+  };
+
+  const handleDocumentUpload = (pr) => {
+    setSelectedPR(pr);
+    setShowDocUpload(true);
+  };
+
+  const handleSubmitPR = (formData) => {
+    if (selectedPR) {
+      setPrData(prData.map(pr => pr.no === selectedPR.no ? { ...pr, ...formData } : pr));
+    } else {
+      setPrData([...prData, { no: prData.length + 1, ...formData }]);
+    }
+  };
+
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold italic">Listing Purchase Request</h1>
+          <div className="flex items-center gap-4">
+            <h1 className="text-3xl font-bold italic">Listing Purchase Request</h1>
+            <Button onClick={handleAddPR} className="bg-success hover:bg-success/90">
+              <Plus className="h-4 w-4 mr-2" />
+              Add New PR
+            </Button>
+          </div>
           
           {/* Status Legend */}
           <Card className="p-4">
@@ -151,13 +188,13 @@ const DokumenPR = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sampleData.map((row) => (
+                {prData.map((row) => (
                   <TableRow key={row.no}>
                     <TableCell>{row.no}</TableCell>
                     <TableCell>{row.namaPengadaan}</TableCell>
                     <TableCell>{row.noPR}</TableCell>
                     <TableCell>
-                      <Badge className={statusVariants[row.statusPengadaan as keyof typeof statusVariants]}>
+                      <Badge className={statusVariants[row.statusPengadaan]}>
                         {row.statusPengadaan}
                       </Badge>
                     </TableCell>
@@ -168,7 +205,20 @@ const DokumenPR = () => {
                     <TableCell>{row.hargaNegosiasi}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Button size="icon" variant="ghost" className="h-8 w-8 bg-warning hover:bg-warning/90">
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          className="h-8 w-8 bg-info hover:bg-info/90"
+                          onClick={() => handleDocumentUpload(row)}
+                        >
+                          <Upload className="h-4 w-4 text-white" />
+                        </Button>
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          className="h-8 w-8 bg-warning hover:bg-warning/90"
+                          onClick={() => handleEditPR(row)}
+                        >
                           <Edit className="h-4 w-4 text-white" />
                         </Button>
                         <Button size="icon" variant="ghost" className="h-8 w-8 bg-danger hover:bg-danger/90">
@@ -194,6 +244,19 @@ const DokumenPR = () => {
           </div>
         </Card>
       </div>
+
+      <PRForm
+        open={showPRForm}
+        onClose={() => setShowPRForm(false)}
+        onSubmit={handleSubmitPR}
+        initialData={selectedPR}
+      />
+
+      <PRDocumentUpload
+        open={showDocUpload}
+        onClose={() => setShowDocUpload(false)}
+        prData={selectedPR}
+      />
     </DashboardLayout>
   );
 };
