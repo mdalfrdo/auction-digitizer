@@ -6,26 +6,32 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
+interface FileUploadProps {
+  onUpload?: (files: File[]) => void;
+  maxSize?: number; // in MB
+  acceptedTypes?: string[];
+}
+
 export function FileUpload({ 
   onUpload, 
   maxSize = 20,
   acceptedTypes = [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".zip", ".rar"]
-}) {
+}: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
-  const [files, setFiles] = useState([]);
-  const [uploadProgress, setUploadProgress] = useState({});
+  const [files, setFiles] = useState<File[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
 
-  const handleDragOver = useCallback((e) => {
+  const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
   }, []);
 
-  const handleDragLeave = useCallback((e) => {
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
   }, []);
 
-  const validateFile = (file) => {
+  const validateFile = (file: File): boolean => {
     const maxSizeBytes = maxSize * 1024 * 1024;
     
     if (file.size > maxSizeBytes) {
@@ -42,10 +48,10 @@ export function FileUpload({
     return true;
   };
 
-  const handleFiles = (fileList) => {
+  const handleFiles = (fileList: FileList | null) => {
     if (!fileList) return;
 
-    const validFiles = [];
+    const validFiles: File[] = [];
     Array.from(fileList).forEach((file) => {
       if (validateFile(file)) {
         validFiles.push(file);
@@ -59,17 +65,17 @@ export function FileUpload({
     }
   };
 
-  const handleDrop = useCallback((e) => {
+  const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     handleFiles(e.dataTransfer.files);
   }, []);
 
-  const handleFileInput = (e) => {
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleFiles(e.target.files);
   };
 
-  const simulateUpload = (filesToUpload) => {
+  const simulateUpload = (filesToUpload: File[]) => {
     filesToUpload.forEach((file) => {
       const fileName = file.name;
       let progress = 0;
@@ -88,7 +94,7 @@ export function FileUpload({
     });
   };
 
-  const removeFile = (fileName) => {
+  const removeFile = (fileName: string) => {
     setFiles((prev) => prev.filter((f) => f.name !== fileName));
     setUploadProgress((prev) => {
       const newProgress = { ...prev };
@@ -98,7 +104,7 @@ export function FileUpload({
     toast.success("File removed");
   };
 
-  const formatFileSize = (bytes) => {
+  const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB", "GB"];
