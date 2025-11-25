@@ -6,8 +6,25 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
-export function VendorForm({ open, onClose, onSubmit, initialData }) {
-  const [formData, setFormData] = useState({
+interface VendorData {
+  namaVendor: string;
+  kategori?: string;
+  alamat?: string;
+  kontak: string;
+  email?: string;
+  npwp?: string;
+  status: string;
+}
+
+interface VendorFormProps {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (data: VendorData) => void;
+  initialData?: Partial<VendorData>;
+}
+
+export function VendorForm({ open, onClose, onSubmit, initialData }: VendorFormProps) {
+  const [formData, setFormData] = useState<VendorData>({
     namaVendor: initialData?.namaVendor || "",
     kategori: initialData?.kategori || "",
     alamat: initialData?.alamat || "",
@@ -17,12 +34,14 @@ export function VendorForm({ open, onClose, onSubmit, initialData }) {
     status: initialData?.status || "Aktif",
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (!formData.namaVendor || !formData.kontak) {
       toast.error("Please fill in required fields");
       return;
     }
+
     onSubmit(formData);
     toast.success("Vendor saved successfully");
     onClose();
@@ -34,9 +53,10 @@ export function VendorForm({ open, onClose, onSubmit, initialData }) {
         <DialogHeader>
           <DialogTitle>{initialData ? "Edit" : "Add New"} Vendor</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
+            
             <div className="space-y-2">
               <Label>Nama Vendor *</Label>
               <Input
@@ -46,7 +66,7 @@ export function VendorForm({ open, onClose, onSubmit, initialData }) {
                 required
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label>Kategori</Label>
               <Input

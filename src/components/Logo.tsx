@@ -30,7 +30,7 @@ const Logo = ({ className = "" }: { className?: string }) => {
           strokeLinejoin="round"
         />
       </svg>
-      <span className="font-bold text-lg">PT Citra Waspphutowa</span>
+      <span className="font-bold text-lg text-black">PT Citra Waspphutowa</span>
     </div>
   );
 };

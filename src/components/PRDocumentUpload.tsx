@@ -7,7 +7,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Upload, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
-const documentStages = [
+interface DocumentItem {
+  id: string;
+  name: string;
+}
+
+interface DocumentStage {
+  no: number;
+  tahapan: string;
+  documents: DocumentItem[];
+}
+
+interface PRData {
+  namaPengadaan?: string;
+}
+
+interface PRDocumentUploadProps {
+  open: boolean;
+  onClose: () => void;
+  prData?: PRData;
+}
+
+const documentStages: DocumentStage[] = [
   {
     no: 1,
     tahapan: "DOKUMEN PR",
@@ -57,11 +78,11 @@ const documentStages = [
   },
 ];
 
-export function PRDocumentUpload({ open, onClose, prData }) {
-  const [attachedDocs, setAttachedDocs] = useState({});
-  const [uploadedFiles, setUploadedFiles] = useState({});
+export function PRDocumentUpload({ open, onClose, prData }: PRDocumentUploadProps) {
+  const [attachedDocs, setAttachedDocs] = useState<Record<string, boolean>>({});
+  const [uploadedFiles, setUploadedFiles] = useState<Record<string, File>>({});
 
-  const handleFileUpload = (docId, event) => {
+  const handleFileUpload = (docId: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setUploadedFiles((prev) => ({
@@ -108,52 +129,57 @@ export function PRDocumentUpload({ open, onClose, prData }) {
                 <TableHead>Keterangan</TableHead>
               </TableRow>
             </TableHeader>
+
             <TableBody>
-              {documentStages.map((stage) => (
-                <>
-                  {stage.documents.map((doc, docIndex) => (
-                    <TableRow key={doc.id}>
-                      {docIndex === 0 && (
-                        <TableCell rowSpan={stage.documents.length} className="font-semibold">
-                          {stage.no}
-                        </TableCell>
-                      )}
-                      {docIndex === 0 && (
-                        <TableCell rowSpan={stage.documents.length} className="font-semibold">
-                          {stage.tahapan}
-                        </TableCell>
-                      )}
-                      <TableCell className="text-sm">{doc.name}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Checkbox
-                            checked={attachedDocs[doc.id] || false}
-                            onCheckedChange={(checked) =>
-                              setAttachedDocs((prev) => ({ ...prev, [doc.id]: checked }))
-                            }
-                          />
-                          <label htmlFor={`file-${doc.id}`} className="cursor-pointer">
-                            <Upload className="h-4 w-4 text-accent" />
-                          </label>
-                          <input
-                            id={`file-${doc.id}`}
-                            type="file"
-                            accept=".pdf"
-                            className="hidden"
-                            onChange={(e) => handleFileUpload(doc.id, e)}
-                          />
-                        </div>
+              {documentStages.map((stage) =>
+                stage.documents.map((doc, index) => (
+                  <TableRow key={doc.id}>
+                    {index === 0 && (
+                      <TableCell rowSpan={stage.documents.length} className="font-semibold">
+                        {stage.no}
                       </TableCell>
-                      <TableCell className="text-sm">
-                        {uploadedFiles[doc.id] ? uploadedFiles[doc.id].name : "-"}
+                    )}
+                    {index === 0 && (
+                      <TableCell rowSpan={stage.documents.length} className="font-semibold">
+                        {stage.tahapan}
                       </TableCell>
-                      <TableCell>
-                        <Input placeholder="Notes" className="text-sm" />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </>
-              ))}
+                    )}
+
+                    <TableCell className="text-sm">{doc.name}</TableCell>
+
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          checked={attachedDocs[doc.id] || false}
+                          onCheckedChange={(checked) =>
+                            setAttachedDocs((prev) => ({ ...prev, [doc.id]: Boolean(checked) }))
+                          }
+                        />
+
+                        <label htmlFor={`file-${doc.id}`} className="cursor-pointer">
+                          <Upload className="h-4 w-4 text-accent" />
+                        </label>
+
+                        <input
+                          id={`file-${doc.id}`}
+                          type="file"
+                          accept=".pdf"
+                          className="hidden"
+                          onChange={(e) => handleFileUpload(doc.id, e)}
+                        />
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-sm">
+                      {uploadedFiles[doc.id] ? uploadedFiles[doc.id].name : "-"}
+                    </TableCell>
+
+                    <TableCell>
+                      <Input placeholder="Notes" className="text-sm" />
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
